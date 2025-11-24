@@ -2,7 +2,7 @@ module github.com/gardener/gardener
 
 go 1.24.5
 
-replace github.com/gardener/machine-controller-manager => github.com/afritzler/machine-controller-manager v0.0.0-20250514112441-bbd98c0e8666
+replace github.com/gardener/machine-controller-manager => github.com/afritzler/machine-controller-manager v0.0.0-20251124134532-311adfebf72a
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0
