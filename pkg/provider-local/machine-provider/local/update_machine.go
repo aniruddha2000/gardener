@@ -38,9 +38,12 @@ func (d *localDriver) UpdateMachine(ctx context.Context, req *driver.UpdateMachi
 
 	patch := client.MergeFrom(podToGet.DeepCopy())
 
-	podToGet.SetAnnotations(map[string]string{
-		"gardener.cloud/update-machine/image": providerSpec.Image,
-	})
+	annotations := podToGet.GetAnnotations()
+	if annotations == nil {
+		annotations = make(map[string]string)
+	}
+	annotations["gardener.cloud/update-machine/image"] = providerSpec.Image
+	podToGet.SetAnnotations(annotations)
 
 	if err := d.client.Patch(ctx, podToGet, patch); err != nil {
 		return nil, fmt.Errorf("failed annotating pod %s: %w", podToGet.Name, err)
