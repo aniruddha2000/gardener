@@ -32,6 +32,8 @@ import (
 const MachinePodContainerName = "node"
 
 func (d *localDriver) CreateMachine(ctx context.Context, req *driver.CreateMachineRequest) (*driver.CreateMachineResponse, error) {
+	klog.V(3).Info("This is the new code written in gardener hackathon 25")
+	
 	if req.MachineClass.Provider != apiv1alpha1.Provider {
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("requested for provider '%s', we only support '%s'", req.MachineClass.Provider, apiv1alpha1.Provider))
 	}

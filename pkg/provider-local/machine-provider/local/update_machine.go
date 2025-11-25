@@ -15,6 +15,8 @@ import (
 )
 
 func (d *localDriver) UpdateMachine(ctx context.Context, req *driver.UpdateMachineRequest) (*driver.UpdateMachineResponse, error) {
+	klog.V(2).Info("UpdateMachine: This is the new code written in gardener hackathon 25")
+
 	if isEmptyUpdateRequest(req) {
 		return nil, status.Error(codes.InvalidArgument, "received empty request")
 	}
@@ -23,18 +25,25 @@ func (d *localDriver) UpdateMachine(ctx context.Context, req *driver.UpdateMachi
 		return nil, status.Error(codes.InvalidArgument, fmt.Sprintf("requested provider '%s' is not supported by the driver '%s'", req.MachineClass.Provider, apiv1alpha1.Provider))
 	}
 
-	klog.V(3).Infof("Machine update request has been received for %q", req.Machine.Name)
-	defer klog.V(3).Infof("Machine update request has been processed for %q", req.Machine.Name)
+	klog.V(2).Infof("Machine update request has been received for %q", req.Machine.Name)
+	defer klog.V(2).Infof("Machine update request has been processed for %q", req.Machine.Name)
 
 	providerSpec, err := validateProviderSpecAndSecret(req.MachineClass, req.Secret)
 	if err != nil {
+		klog.Error("failed to validate pod")
 		return nil, err
 	}
+	klog.V(2).Info("validateProviderSpecAndSecret Successful!!!")
+
+	klog.V(2).Info("the provider spec looks like", "image", providerSpec.Image)
+	klog.V(2).Info("machine name and machine class name", "machine", req.Machine.Name, "machineclass", req.MachineClass.Name)
 
 	podToGet := &corev1.Pod{}
 	if err := d.client.Get(ctx, types.NamespacedName{Name: podName(req.Machine.Name), Namespace: getNamespaceForMachine(req.Machine, req.MachineClass)}, podToGet); err != nil {
+		klog.Error("failed to get pod", err)
 		return nil, fmt.Errorf("failed to get pod: %w", err)
 	}
+	klog.V(2).Info("d.client.Get Pod Successful!!!")
 
 	patch := client.MergeFrom(podToGet.DeepCopy())
 
@@ -46,8 +55,11 @@ func (d *localDriver) UpdateMachine(ctx context.Context, req *driver.UpdateMachi
 	podToGet.SetAnnotations(annotations)
 
 	if err := d.client.Patch(ctx, podToGet, patch); err != nil {
+		klog.Error("failed to patch the pod annotation", err)
 		return nil, fmt.Errorf("failed annotating pod %s: %w", podToGet.Name, err)
 	}
+
+	klog.V(2).Info("Patching Pod is Successful!!!")
 
 	return &driver.UpdateMachineResponse{}, nil
 }
